@@ -17,9 +17,35 @@
         href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Nunito:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@2/dist/lottie-player.js" defer></script>
 </head>
 
 <body>
+    <!-- ========== SKELETON LOADING ========== -->
+    <div class="skeleton-wrapper" id="skeleton">
+        <div class="skeleton-logo"></div>
+        <div class="skeleton-title"></div>
+        <div class="skeleton-text"></div>
+        <div class="skeleton-text" style="width:60%"></div>
+        <div class="skeleton-cards">
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+            <div class="skeleton-card"></div>
+        </div>
+    </div>
+
+    <!-- ========== GRADIENT MESH ========== -->
+    <div class="gradient-mesh">
+        <div class="gradient-mesh__blob"></div>
+        <div class="gradient-mesh__blob"></div>
+        <div class="gradient-mesh__blob"></div>
+    </div>
+
+    <!-- ========== PULL-TO-REVEAL ========== -->
+    <div class="pull-reveal" id="pullReveal">
+        <span class="pull-reveal__emoji">🏇</span>
+        <span id="pullFact">Агинский округ — родина более 30 олимпийских чемпионов по борьбе!</span>
+    </div>
     <!-- ========== HEADER ========== -->
     <header class="header" id="header">
         <div class="header__container">
@@ -35,6 +61,7 @@
                 <a href="#contacts" class="nav__link" data-i18n="nav_contacts">Контакты</a>
             </nav>
             <div class="header__actions">
+                <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">🌙</button>
                 <div class="lang-switcher" id="langSwitcher">
                     <button class="lang-switcher__btn" id="langBtn">
                         <span class="lang-switcher__current" id="langCurrent">RU</span>
@@ -70,8 +97,8 @@
                 природу, культуру и гостеприимство Агинского Бурятского округа. Степи, горы, дацаны и древние традиции —
                 всё в одном месте.</p>
             <div class="hero__cta animate-on-scroll">
-                <a href="#about" class="btn btn--primary" data-i18n="hero_cta_more">Узнать больше</a>
-                <a href="#contacts" class="btn btn--outline" data-i18n="hero_cta_contact">Связаться</a>
+                <a href="#about" class="btn btn--primary ripple-btn" data-i18n="hero_cta_more">Узнать больше</a>
+                <a href="#contacts" class="btn btn--outline ripple-btn" data-i18n="hero_cta_contact">Связаться</a>
             </div>
         </div>
         <div class="hero__scroll-indicator">
@@ -120,7 +147,7 @@
                 путешествие по Агинскому округу комфортным и незабываемым.</p>
 
             <div class="eco-grid">
-                <div class="eco-card animate-on-scroll">
+                <div class="eco-card tilt-card glass-card animate-on-scroll">
                     <div class="eco-card__icon">
                         <svg viewBox="0 0 48 48" fill="none">
                             <path d="M6 38V18L24 6L42 18V38C42 40.2 40.2 42 38 42H10C7.8 42 6 40.2 6 38Z"
@@ -132,7 +159,7 @@
                     <p class="eco-card__desc" data-i18n="eco_stay_desc">Турбазы, гостиницы, кемпинги с фото, рейтингом и
                         GPS-координатами</p>
                 </div>
-                <div class="eco-card animate-on-scroll">
+                <div class="eco-card tilt-card glass-card animate-on-scroll">
                     <div class="eco-card__icon">
                         <svg viewBox="0 0 48 48" fill="none">
                             <circle cx="24" cy="20" r="10" stroke="currentColor" stroke-width="2.5" />
@@ -146,7 +173,7 @@
                     <p class="eco-card__desc" data-i18n="eco_eat_desc">Кафе и рестораны с акцентом на аутентичную
                         бурятскую кухню: буузы, бухулёр, саламат</p>
                 </div>
-                <div class="eco-card animate-on-scroll">
+                <div class="eco-card tilt-card glass-card animate-on-scroll">
                     <div class="eco-card__icon">
                         <svg viewBox="0 0 48 48" fill="none">
                             <path d="M6 42L18 12L30 30L36 22L42 42H6Z" stroke="currentColor" stroke-width="2.5"
@@ -158,7 +185,7 @@
                     <p class="eco-card__desc" data-i18n="eco_routes_desc">Готовые гайды: Алханай, этно-туры, степные
                         дороги и джип-маршруты</p>
                 </div>
-                <div class="eco-card animate-on-scroll">
+                <div class="eco-card tilt-card glass-card animate-on-scroll">
                     <div class="eco-card__icon">
                         <svg viewBox="0 0 48 48" fill="none">
                             <rect x="6" y="10" width="36" height="30" rx="4" stroke="currentColor" stroke-width="2.5" />
@@ -172,7 +199,7 @@
                     <p class="eco-card__desc" data-i18n="eco_events_desc">Алтаргана, Сагаалган, скачки, ярмарки и
                         культурные фестивали округа</p>
                 </div>
-                <div class="eco-card animate-on-scroll">
+                <div class="eco-card tilt-card glass-card animate-on-scroll">
                     <div class="eco-card__icon">
                         <svg viewBox="0 0 48 48" fill="none">
                             <path d="M14 6H34C36.2 6 38 7.8 38 10V42L24 36L10 42V10C10 7.8 11.8 6 14 6Z"
@@ -185,7 +212,7 @@
                     <p class="eco-card__desc" data-i18n="eco_shop_desc">Изделия местных мастеров, сувениры, аудиогиды и
                         уникальные подарки</p>
                 </div>
-                <div class="eco-card animate-on-scroll">
+                <div class="eco-card tilt-card glass-card animate-on-scroll">
                     <div class="eco-card__icon">
                         <svg viewBox="0 0 48 48" fill="none">
                             <path d="M24 44C35 44 44 35 44 24C44 13 35 4 24 4C13 4 4 13 4 24C4 35 13 44 24 44Z"

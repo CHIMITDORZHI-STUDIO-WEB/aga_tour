@@ -411,14 +411,226 @@ contactForm.addEventListener('submit', (e) => {
 // ========== SHOWCASE TABS ==========
 document.querySelectorAll('.showcase-tab').forEach(tab => {
     tab.addEventListener('click', () => {
-        // Switch active tab button
         document.querySelectorAll('.showcase-tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-        // Switch active panel
         const tabId = tab.dataset.tab;
         document.querySelectorAll('.showcase-panel').forEach(p => p.classList.remove('active'));
         document.getElementById('tab-' + tabId).classList.add('active');
     });
+});
+
+// ========== SKELETON LOADING ==========
+window.addEventListener('load', () => {
+    const skeleton = document.getElementById('skeleton');
+    if (skeleton) {
+        setTimeout(() => {
+            skeleton.classList.add('hidden');
+            setTimeout(() => skeleton.remove(), 600);
+        }, 800);
+    }
+});
+
+// ========== DARK/LIGHT THEME TOGGLE ==========
+const themeToggle = document.getElementById('themeToggle');
+const savedTheme = localStorage.getItem('aga-tour-theme');
+
+if (savedTheme === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    themeToggle.textContent = '☀️';
+}
+
+themeToggle.addEventListener('click', () => {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        themeToggle.textContent = '🌙';
+        localStorage.setItem('aga-tour-theme', 'light');
+    } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        themeToggle.textContent = '☀️';
+        localStorage.setItem('aga-tour-theme', 'dark');
+    }
+    // Haptic feedback on theme switch
+    if (navigator.vibrate) navigator.vibrate(15);
+});
+
+// ========== RIPPLE EFFECT ==========
+document.querySelectorAll('.ripple-btn, .btn').forEach(btn => {
+    btn.classList.add('ripple-btn');
+    btn.addEventListener('click', function (e) {
+        const rect = this.getBoundingClientRect();
+        const ripple = document.createElement('span');
+        ripple.classList.add('ripple');
+        const size = Math.max(rect.width, rect.height);
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = (e.clientX - rect.left - size / 2) + 'px';
+        ripple.style.top = (e.clientY - rect.top - size / 2) + 'px';
+        this.appendChild(ripple);
+        ripple.addEventListener('animationend', () => ripple.remove());
+    });
+});
+
+// ========== HAPTIC FEEDBACK ==========
+document.querySelectorAll('.btn, .showcase-tab, .theme-toggle, .lang-option').forEach(el => {
+    el.addEventListener('click', () => {
+        if (navigator.vibrate) navigator.vibrate(10);
+    });
+});
+
+// ========== TILT EFFECT (Gyroscope on mobile, mouse on desktop) ==========
+const tiltCards = document.querySelectorAll('.tilt-card');
+
+// Desktop: mouse-based tilt
+tiltCards.forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = ((y - centerY) / centerY) * -8;
+        const rotateY = ((x - centerX) / centerX) * 8;
+        card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+    });
+    card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(800px) rotateX(0) rotateY(0) scale(1)';
+    });
+});
+
+// Mobile: gyroscope-based tilt
+if (window.DeviceOrientationEvent) {
+    let tiltEnabled = false;
+
+    // iOS 13+ requires permission
+    const enableGyro = () => {
+        if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+            DeviceOrientationEvent.requestPermission()
+                .then(resp => { if (resp === 'granted') tiltEnabled = true; })
+                .catch(() => { });
+        } else {
+            tiltEnabled = true;
+        }
+    };
+
+    document.addEventListener('touchstart', enableGyro, { once: true });
+
+    window.addEventListener('deviceorientation', (e) => {
+        if (!tiltEnabled) return;
+        const gamma = e.gamma || 0; // left-right tilt (-90 to 90)
+        const beta = e.beta || 0;   // front-back tilt (-180 to 180)
+        const rotateY = (gamma / 90) * 6;
+        const rotateX = ((beta - 45) / 90) * -6;
+
+        tiltCards.forEach(card => {
+            const rect = card.getBoundingClientRect();
+            if (rect.top < window.innerHeight && rect.bottom > 0) {
+                card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            }
+        });
+    });
+}
+
+// ========== PULL-TO-REVEAL ==========
+const pullReveal = document.getElementById('pullReveal');
+const pullFact = document.getElementById('pullFact');
+const facts = [
+    { emoji: '🏇', text: 'Агинский округ — родина более 30 олимпийских чемпионов по борьбе!' },
+    { emoji: '🏔️', text: 'Национальный парк Алханай — священная гора бурят, высота 1662 м!' },
+    { emoji: '🥟', text: 'Буузы (бурятские позы) — главное блюдо, с 33 защипами по краю!' },
+    { emoji: '🐎', text: 'Скачки на приз Губернатора собирают более 10 000 зрителей!' },
+    { emoji: '🎭', text: 'Фестиваль Алтаргана — крупнейший бурятский праздник в мире!' },
+    { emoji: '🌾', text: 'Площадь Агинского округа — 19 600 км², как 3 Кипра!' },
+    { emoji: '☸️', text: 'В округе более 15 действующих дацанов — буддийских храмов!' },
+    { emoji: '🎻', text: 'Моринхур — бурятская скрипка с головой коня, символ степи!' },
+];
+let factIndex = 0;
+let pullTimeout = null;
+
+window.addEventListener('scroll', () => {
+    if (window.scrollY === 0) {
+        // user is at top — detect overscroll
+    }
+});
+
+let touchStartY = 0;
+document.addEventListener('touchstart', (e) => {
+    touchStartY = e.touches[0].clientY;
+});
+
+document.addEventListener('touchmove', (e) => {
+    if (window.scrollY === 0) {
+        const touchY = e.touches[0].clientY;
+        const diff = touchY - touchStartY;
+        if (diff > 80 && pullReveal) {
+            const fact = facts[factIndex % facts.length];
+            pullReveal.querySelector('.pull-reveal__emoji').textContent = fact.emoji;
+            pullFact.textContent = fact.text;
+            pullReveal.classList.add('visible');
+            factIndex++;
+            clearTimeout(pullTimeout);
+            pullTimeout = setTimeout(() => {
+                pullReveal.classList.remove('visible');
+            }, 3500);
+        }
+    }
+});
+
+// Desktop: pull-to-reveal via scroll at top 
+let prevScrollY = 0;
+window.addEventListener('scroll', () => {
+    if (prevScrollY > 0 && window.scrollY === 0 && pullReveal) {
+        const fact = facts[factIndex % facts.length];
+        pullReveal.querySelector('.pull-reveal__emoji').textContent = fact.emoji;
+        pullFact.textContent = fact.text;
+        pullReveal.classList.add('visible');
+        factIndex++;
+        clearTimeout(pullTimeout);
+        pullTimeout = setTimeout(() => {
+            pullReveal.classList.remove('visible');
+        }, 3500);
+    }
+    prevScrollY = window.scrollY;
+});
+
+// ========== SWIPE GALLERY 3D ROTATION ==========
+document.querySelectorAll('.swipe-gallery__track').forEach(track => {
+    let isDown = false;
+    let startX, scrollLeft;
+
+    track.addEventListener('mousedown', (e) => {
+        isDown = true;
+        startX = e.pageX - track.offsetLeft;
+        scrollLeft = track.scrollLeft;
+    });
+    track.addEventListener('mouseup', () => isDown = false);
+    track.addEventListener('mouseleave', () => isDown = false);
+    track.addEventListener('mousemove', (e) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const x = e.pageX - track.offsetLeft;
+        const walk = (x - startX) * 2;
+        track.scrollLeft = scrollLeft - walk;
+    });
+
+    // 3D rotation based on scroll position
+    const update3D = () => {
+        const slides = track.querySelectorAll('.swipe-gallery__slide');
+        const trackRect = track.getBoundingClientRect();
+        const center = trackRect.left + trackRect.width / 2;
+
+        slides.forEach(slide => {
+            const slideRect = slide.getBoundingClientRect();
+            const slideCenter = slideRect.left + slideRect.width / 2;
+            const offset = (slideCenter - center) / (trackRect.width / 2);
+            const rotation = offset * 15; // max 15 degrees
+            const scale = 1 - Math.abs(offset) * 0.08;
+            slide.style.transform = `perspective(800px) rotateY(${rotation}deg) scale(${Math.max(scale, 0.85)})`;
+        });
+    };
+
+    track.addEventListener('scroll', update3D);
+    window.addEventListener('resize', update3D);
+    setTimeout(update3D, 100);
 });
 
 // ========== INITIAL STATE ==========
