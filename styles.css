@@ -136,10 +136,10 @@ a {
 }
 
 .hero__logo-img {
-    height: 100px;
+    height: 120px;
     width: auto;
     margin: 0 auto;
-    filter: brightness(0) invert(1);
+    filter: drop-shadow(0 4px 20px rgba(255, 255, 255, 0.3));
     transition: transform var(--transition);
 }
 
@@ -792,9 +792,9 @@ a {
 }
 
 .footer__logo {
-    height: 50px;
+    height: 55px;
     width: auto;
-    filter: brightness(0) invert(1);
+    filter: drop-shadow(0 2px 10px rgba(255, 255, 255, 0.2));
 }
 
 .footer__brand-name {
